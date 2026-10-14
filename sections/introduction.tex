@@ -23,17 +23,13 @@
 In 1945, Vannevar Bush imagined the memex, a desk in which a person stores
 all of their books, records, and communications and consults them with speed
 and flexibility~\cite{bush1945memex}. Today's laptops record far more than
-Bush imagined, but most of it is seen once and then forgotten. People often
-need to find something they did on their computer days or weeks earlier,
-such as how they set only one section of a document to landscape, or the
-monthly rent cap they used when searching for apartments, and finding it
-again by hand means reopening applications and repeating
-searches~\cite{hu2020screentrack}. Screen-recall systems take a step toward
-the memex: they capture a screenshot every few seconds so that a person can
-later ask about the past. We call this task \emph{episodic recall} over a
-person's screen history: given a question, a system returns the screenshots
-that answer it. Computer-use agents that act on a person's behalf need the
-same ability~\cite{yang2026personatrail}.
+Bush imagined, but most of it is seen once and then forgotten. Weeks later,
+a person asks: ``How did I set only one section of that document to
+landscape?'' or ``What rent cap did I use when I searched for apartments?''
+Screen-recall systems are built for such questions: they capture a
+screenshot every few seconds and let the person search this
+history~\cite{hu2020screentrack}. We call this task \emph{episodic recall}:
+given a question about the past, return the screenshots that answer it.
 
 Existing screen-recall systems store screenshots but search only the text on
 them. Screenpipe, OpenRecall, and Rem index text from OCR or the
@@ -148,10 +144,10 @@ pilot study with 500 fixed questions, R@1 of the screenshot index drops from
 78.8\% to 53.2\% as the pool grows from 5K to 80K screenshots, while staying
 ahead of the OCR-text index at every pool size. Ditto makes larger pools
 affordable to index \todo{larger-pool results in the main setting}. Second,
-because Ditto returns screenshots rather than extracted text, an agent can
-use it to recall a value from the person's past and finish a task, such as
-finding a yoga mat with the same filters the person used in August
-\todo{agentic results}. Thus, the screenshot itself, not its text, can serve
+because Ditto returns screenshots rather than extracted text, a computer-use
+agent can use it to recall a value from the person's past and finish a
+task~\cite{yang2026personatrail}, such as finding a yoga mat with the same
+filters the person used in August \todo{agentic results}. Thus, the screenshot itself, not its text, can serve
 as the record that a personal memory system stores and searches, at a cost
 a laptop can sustain.
 % Pilot: 9/26 meeting, Finding 3 (synthetic queries, PSAI, OCR = PP-OCRv4 mobile + same embedder).
