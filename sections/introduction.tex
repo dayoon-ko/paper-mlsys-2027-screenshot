@@ -6,6 +6,8 @@
 %   (5) this makes larger pools affordable (to be verified) and benefits agentic workflows
 % Numbers: 10/13 meeting results table (PSAI-A main setting, 63,538 frames x 5,507 test queries,
 % Qwen3-VL-Embedding-2B, Apple M2 Pro; GPU = MPS fp16, CPU latency from the same table).
+% From the 9/26 meeting: existing-systems survey, pool-size pilot, and history spans
+% (PC A = PSAI-A: 117 days / 91.8 h; PC B = PSAI-B: 57 days / 17.2 h).
 
 \section{Introduction}
 \label{sec:intro}
@@ -23,16 +25,21 @@ question about the past, is therefore valuable to people, and increasingly to
 computer-use agents that act on a person's behalf and must recall what that
 person did before~\cite{yang2026personatrail}.
 
-Screen-recall systems capture a screenshot every few seconds and index it.
-Existing systems rely heavily on OCR text: products such as Microsoft Recall,
-Rewind, Screenpipe, and OpenRecall extract the text on each screenshot and
-search over that text~\needcite{Recall, Rewind, Screenpipe, OpenRecall}, while
-research systems that go beyond text send screenshots to a cloud VLM for
-summarization~\cite{wang2025mirix}. OCR is attractive for an always-on,
-on-device system because text is cheap to store and to embed. But it discards
-everything on the screen that is not text, such as layout, icons, images, and
-the visual state of a form or page, and its errors on small or stylized text
-propagate into the index.
+Screen-recall systems capture a screenshot every few seconds, or whenever
+the screen changes, and index it. Existing systems rely heavily on OCR text.
+Open-source tools such as Screenpipe, OpenRecall, and Rem index only the text
+extracted by OCR or the accessibility tree, as did the now-discontinued
+Rewind~\needcite{Screenpipe, OpenRecall, Rem, Rewind}. Microsoft Recall also
+indexes screenshots, but it is closed source and requires a dedicated
+40-TOPS NPU~\needcite{Microsoft Recall}. Research systems that go beyond text
+send every screenshot to a cloud VLM for summarization~\cite{wang2025mirix},
+so the screen history leaves the device. A screen history holds a person's
+messages, documents, and account details, so it should be indexed on the
+device, and there OCR is attractive because text is cheap to extract, store,
+and embed. But OCR discards everything on the screen that is not text, such
+as layout, icons, images, and the visual state of a form or page, and its
+errors on small or stylized text propagate into the index.
+% Systems survey: 9/26 meeting, pp. 3-6 (capture policy, index, relevance, where it runs).
 
 Visual document retrieval has shown that embedding page images directly with
 a vision-language model (VLM) can outperform OCR-then-embed pipelines on
@@ -85,8 +92,14 @@ fine-tuning absorbs.
 
 Cheaper encoding changes what a recall system can afford. A lower cost per
 frame makes larger pools, i.e.\ longer histories and denser capture,
-affordable, which matters because recall drops as the pool grows
-\todo{verify with larger-pool experiments}. And because the index returns
+affordable. This matters because a real history keeps growing, and retrieval
+gets harder as it does: in a pilot study with 500 fixed queries, screenshot
+R@1 fell from 78.8 to 53.2 as the pool grew from 5K to 80K frames, while
+still leading OCR text at every pool size
+\todo{verify with larger-pool experiments in the main setting}.
+% Pilot: 9/26 meeting, Finding 3 (synthetic queries, PSAI, OCR = PP-OCRv4 mobile + same embedder).
+% OCR R@1: 67.6 / 63.0 / 56.9 / 45.6 at 5K / 10K / 20K / 80K frames.
+And because the index returns
 screens rather than extracted text, it plugs directly into agentic workflows
 in which an agent must recall a value from the user's past to finish a task,
 such as re-applying the filters the user chose last month
@@ -105,7 +118,8 @@ In summary, we make the following contributions:
   the screenshot route faster than OCR text on a laptop while it keeps a
   $+2.0$ R@1 / $+4.5$ R@10 lead.
 \item We build a time-split episodic-recall benchmark from human-annotated
-  screen recordings of two people (PSAI-A, PSAI-B) and from computer-use
+  screen recordings of two people (PSAI-A: 117 days, 91.8 hours;
+  PSAI-B: 57 days, 17.2 hours) and from computer-use
   rollouts (MyPCBench~\cite{jang2026mypcbench}), with single-hop, multi-hop,
   and agentic (recall-then-act) queries, where every query is checked
   against the person's entire history so that all matching recordings count

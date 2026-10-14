@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.24)  14 OCT 2026 09:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.24)  14 OCT 2026 09:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -481,16 +481,20 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 ]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 9
-7.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
+10.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-))
+)
+Underfull \hbox (badness 1881) in paragraph at lines 120--127
+[]\OT1/ptm/m/n/10 (+20) We build a time-split episodic-recall bench-mark
+ []
+
+)
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
 11.
-
-(/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
 Package microtype Info: Loading generic protrusion settings for font family
@@ -512,18 +516,11 @@ Underfull \hbox (badness 1371) in paragraph at lines 214--217
 ng
  []
 
-
-Underfull \vbox (badness 6859) has occurred while \output is active []
-
-
+[3]
 Underfull \hbox (badness 1259) in paragraph at lines 270--277
 []\OT1/ptm/m/n/10 (+20) MLSys uses double-blind re-view, so au-thor in-for-ma-
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [3]
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <10> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 316.
 
@@ -542,7 +539,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-Underfull \vbox (badness 1248) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [5
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
@@ -566,7 +563,7 @@ Package rerunfilecheck Info: File `example_paper.out' has not changed.
 Here is how much of TeX's memory you used:
  12631 strings out of 478268
  198343 string characters out of 5846346
- 551591 words of memory out of 5000000
+ 552122 words of memory out of 5000000
  30294 multiletter control sequences out of 15000+600000
  512056 words of font info for 264 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -586,10 +583,10 @@ fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/ty
 pe1/urw/times/utmb8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/ti
 mes/utmr8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/times/utmr8a
 .pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on example_paper.pdf (6 pages, 204720 bytes).
+Output written on example_paper.pdf (6 pages, 205164 bytes).
 PDF statistics:
- 211 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
+ 210 PDF objects out of 1000 (max. 8388607)
+ 170 compressed objects within 2 object streams
  47 named destinations out of 1000 (max. 500000)
  72705 words of extra memory for PDF output out of 74296 (max. 10000000)
 
