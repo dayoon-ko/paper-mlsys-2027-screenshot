@@ -4,40 +4,41 @@
 %   (3) screenshots are significantly better than OCR text, but slow to encode
 %   (4) token pruning / K/V reuse remove spatial / temporal redundancy
 %   (5) this makes larger pools affordable (to be verified) and benefits agentic workflows
-% Structure: LEANN (MLSys 2026) intro -- Table 1 in the intro and referenced throughout, bold
-% run-in headers, observation -> explicit question ("we ask: can ...?"), two insights each
-% followed by its design, implementation + platform, bullet contributions.
+% Narrative: "chicken paper" (Wang et al., arXiv 2610.06851) -- historical hook (memex, like
+% Pavlov), each paragraph ends with the question the next paragraph answers, one memorable name
+% (Ditto, like "chicken"), closing "Thus, ...".
+% Structure: LEANN (MLSys 2026) -- Table 1 in the intro and cited throughout, bold run-in
+% headers, insights followed by designs, implementation platform, bullet contributions.
 % Style: CompLit rules (plain topic sentences, calm declaratives, fixed terms, numbers only when
-% they carry the claim, differences in points) + Sewon Min's intros (gap early, "In this paper",
-% First/Second enumerations, "This shows that").
-% Fixed terms: "screenshot index", "OCR-text index", "token pruning", "K/V reuse", "pool".
+% they carry the claim, differences in points) + Sewon Min's intros.
+% Fixed terms: "screenshot index", "OCR-text index", "token pruning", "K/V reuse", "pool", "Ditto".
 % Numbers: 10/13 meeting results table (PSAI-A main setting, 63,538 frames x 5,507 test queries,
 % Qwen3-VL-Embedding-2B, Apple M2 Pro, GPU = MPS fp16). Refresh rule (>60% changed or every
-% 10 frames): efficiency_results_20261013.docx.
-% From the 9/26 meeting: existing-systems survey, pool-size pilot, and history spans
-% (PC A = PSAI-A: 117 days / 91.8 h; PC B = PSAI-B: 57 days / 17.2 h).
-% Example questions: plans/realistic_questions_20261014.md (picked by all three raters):
-%   landscape section (B, Word), rent cap (A, StreetEasy), medications (A, WebMD), taxable income (A, Smartasset).
+% 10 frames): efficiency_results_20261013.docx. Pool pilot and PSAI spans: 9/26 meeting.
+% Example questions: plans/realistic_questions_20261014.md (picked by all three raters).
 
 \section{Introduction}
 \label{sec:intro}
 
-People often need to find something they did on their computer days or
-weeks earlier, such as how they set only one section of a document to
-landscape, or the monthly rent cap they used when searching for apartments.
-Such details are seen once and then forgotten~\needcite{human memory /
-re-finding studies}, and finding them again by hand means reopening
-applications and repeating searches~\cite{hu2020screentrack}. We call this
-task \emph{episodic recall} over a person's screen history: given a question
-about the past, a system returns the screenshots that answer it.
-Computer-use agents that act on a person's behalf need the same ability, for
-example to reapply the search filters the person used in an earlier
-session~\cite{yang2026personatrail}.
+In 1945, Vannevar Bush imagined the memex, a desk in which a person stores
+all of their books, records, and communications and consults them with speed
+and flexibility~\cite{bush1945memex}. Today's laptops record far more than
+Bush imagined, but most of it is seen once and then forgotten. People often
+need to find something they did on their computer days or weeks earlier,
+such as how they set only one section of a document to landscape, or the
+monthly rent cap they used when searching for apartments, and finding it
+again by hand means reopening applications and repeating
+searches~\cite{hu2020screentrack}. Screen-recall systems take a step toward
+the memex: they capture a screenshot every few seconds so that a person can
+later ask about the past. We call this task \emph{episodic recall} over a
+person's screen history: given a question, a system returns the screenshots
+that answer it. Computer-use agents that act on a person's behalf need the
+same ability~\cite{yang2026personatrail}.
 
-Existing screen-recall systems capture a screenshot every few seconds and
-index the text on it. Screenpipe, OpenRecall, and Rem index text from OCR or
-the accessibility tree, as did Rewind~\needcite{Screenpipe, OpenRecall, Rem,
-Rewind}. Microsoft Recall also indexes screenshots, but it is closed source
+Existing screen-recall systems store screenshots but search only the text on
+them. Screenpipe, OpenRecall, and Rem index text from OCR or the
+accessibility tree, as did Rewind~\needcite{Screenpipe, OpenRecall, Rem,
+Rewind}; Microsoft Recall also indexes screenshots, but it is closed source
 and requires a 40-TOPS NPU~\needcite{Microsoft Recall}. Text indexing suits
 the privacy needs of this task. A screen history records sensitive
 information, such as the two medications a person checked against each other
@@ -47,7 +48,8 @@ that send every screenshot to a cloud VLM~\cite{wang2025mirix} do not meet
 this requirement. However, OCR text keeps the words on a screen and drops
 the rest: the layout, the icons, and the state of menus and dialogs. The
 answer to ``how did I set one section to landscape?'' lies in exactly such
-menus and dialogs.
+menus and dialogs. Is the text on a screen enough to find it again, or should
+the system search the screenshot itself?
 
 \begin{table}[t]
 \caption{Retrieval accuracy and encoding cost of the OCR-text index and the
@@ -79,87 +81,90 @@ Screenshot            & 68.6 & 85.8 & 6.17 & 2.86 & 34.3 \\
 \end{table}
 
 \textbf{Screenshots versus OCR text: accuracy and cost.}
-In this paper, we first show that indexing screenshots gives better
-retrieval than indexing their OCR text, but takes longer to encode. We hold
-the embedding model fixed (Qwen3-VL-Embedding-2B~\needcite{Qwen3-VL-Embedding})
-and build both indexes over 63,538 screenshots from one person's computer
-use, with 5,507 test questions about later periods. Table~\ref{tab:intro}
-shows that the screenshot index outperforms the OCR-text index by 2.5 points
-in R@1 and 6.4 points in R@10 after the same LoRA fine-tuning; without
-training, the gap is 6.1 points in R@1 (65.6\% vs.\ 59.5\%). This extends
-the finding of visual document retrieval~\cite{ma2024dse,faysse2025colpali}
-from static documents to screen histories. However, Table~\ref{tab:intro}
-also shows that encoding one screenshot takes 2.86\,s on a laptop GPU,
-compared with 1.27\,s for OCR and text embedding. A recall system encodes
-every screenshot it captures, so the GPU spends 34 minutes of every hour of
-screen use on indexing, more than twice the 15 minutes of the OCR-text
-index.
+In this paper, we first show that searching the screenshot finds the right
+moment more often than searching its text. We hold the embedding model fixed
+(Qwen3-VL-Embedding-2B~\needcite{Qwen3-VL-Embedding}) and build both indexes
+over 63,538 screenshots from one person's computer use, with 5,507 test
+questions about later periods. Without training, the screenshot index
+outperforms the OCR-text index by 6.1 points in R@1 (65.6\% vs.\ 59.5\%).
+After the same LoRA fine-tuning, Table~\ref{tab:intro} shows a gap of 2.5
+points in R@1 and 6.4 points in R@10. This extends the finding of visual
+document retrieval~\cite{ma2024dse,faysse2025colpali} from static documents
+to screen histories. The screenshot, however, is expensive to encode.
+Table~\ref{tab:intro} also shows that encoding one screenshot takes 2.86\,s
+on a laptop GPU, compared with 1.27\,s for OCR and text embedding. A recall
+system encodes every screenshot it captures, so the GPU spends 34 minutes of
+every hour of screen use on indexing, more than twice the 15 minutes of the
+OCR-text index. Must a laptop then choose between the accuracy of
+screenshots and the cost of text?
 
-An important property of screen streams is that most of each screenshot is
-redundant. Within a screenshot, large areas are blank or flat, and across
-screenshots taken 5\,s apart, most of the screen does not change. A
-screenshot index that encodes every pixel of every screenshot pays for this
-redundancy in full. Motivated by this observation, we ask: \emph{can a
-laptop index screenshots at a cost no higher than OCR text, while keeping
-their accuracy advantage?}
+To answer this question, we look at what the encoder spends its compute on.
+Most of each screenshot repeats what the encoder has already seen. Within a
+screenshot, large areas such as backgrounds, margins, and whitespace are
+blank or flat, so each of their blocks can be predicted from its neighbors
+(spatial redundancy). Across screenshots taken 5\,s apart, most of the
+screen does not change, and when it does, only small regions such as typed
+text or the cursor differ (temporal redundancy). A screenshot index that
+encodes every pixel of every screenshot pays for this repetition in full.
+So, if most of a screenshot repeats its neighbors or the previous
+screenshot, how much of the encoding can we skip without losing the
+accuracy of screenshots?
 
-\textbf{Our approach.}
-We remove the redundancy with two training-free techniques, guided by two
-insights. The first insight is that much of a screen, such as backgrounds,
-margins, and whitespace, can be predicted from neighboring pixels (spatial
-redundancy). Thus, we apply token pruning~\needcite{PixelPrune}, which drops
-each $32{\times}32$ block whose pixels can be predicted from its left and
-upper neighbors before the block enters the vision encoder. The second
-insight is that consecutive screenshots are often identical, and when they
-differ, only small regions change, such as typed text or the cursor
-(temporal redundancy). Thus, we apply K/V reuse: a block counts as changed
-if any of its pixels differs by more than $8/255$ from when it was last
-encoded, the vision encoder recomputes keys and values only for changed
-blocks, and the language model reuses the cached keys and values of
-unchanged visual tokens. Reused keys and values can differ from recomputed
-ones, so K/V reuse encodes the whole screenshot again when more than 60\% of
-its blocks change or every 10 screenshots.
+\textbf{Our solution: Ditto.}
+We present Ditto, a screenshot index that encodes only what does not repeat.
+The name comes from the ditto mark, which means ``the same as above'': Ditto does not encode a block that repeats its neighbors or the
+same block in the previous screenshot. Ditto removes spatial redundancy with
+token pruning~\needcite{PixelPrune}, which drops each $32{\times}32$ block
+whose pixels can be predicted from its left and upper neighbors before the
+block enters the vision encoder. It removes temporal redundancy with K/V
+reuse: a block counts as changed if any of its pixels differs by more than
+$8/255$ from when it was last encoded, the vision encoder recomputes keys
+and values only for changed blocks, and the language model reuses the
+cached keys and values of unchanged visual tokens. Reused keys and values
+can differ from recomputed ones, so Ditto encodes the whole screenshot again
+when more than 60\% of its blocks change or every 10 screenshots. Neither
+technique requires training.
 
-We implement both techniques inside Qwen3-VL-Embedding-2B and run it on the
-GPU of an Apple M2 Pro laptop. Table~\ref{tab:intro} shows that together,
-token pruning and K/V reuse reduce encoding compute to 31\% of the full
-screenshot and encoding time to 0.98\,s per screenshot, below the 1.27\,s of
-the OCR-text index; indexing then takes 12 GPU minutes per hour of screen
-use instead of 34. The OCR-text index still uses fewer FLOPs (1.22 vs.\ 1.93
-TFLOP); its text extraction runs on the CPU, so it is slower despite needing
-less computation. The two techniques lower R@1 by at most 0.5 points and
-R@10 by at most 1.9 points, and the screenshot index still outperforms the
-OCR-text index by 2.0 points in R@1 and 4.5 points in R@10, with 95\%
-confidence intervals that exclude zero. This shows that, on a laptop GPU,
-screenshots can be encoded faster than OCR text while keeping their accuracy
-advantage.
+We implement Ditto inside Qwen3-VL-Embedding-2B and run it on the GPU of an
+Apple M2 Pro laptop. Table~\ref{tab:intro} shows that Ditto reduces encoding
+compute to 31\% of the full screenshot and encoding time to 0.98\,s per
+screenshot, below the 1.27\,s of the OCR-text index; indexing then takes 12
+GPU minutes per hour of screen use instead of 34. The OCR-text index still
+uses fewer FLOPs (1.22 vs.\ 1.93 TFLOP); its text extraction runs on the
+CPU, so it is slower despite needing less computation. Ditto lowers R@1 by
+at most 0.5 points and R@10 by at most 1.9 points, and it still outperforms
+the OCR-text index by 2.0 points in R@1 and 4.5 points in R@10, with 95\%
+confidence intervals that exclude zero. On a laptop GPU, then, the choice
+between screenshots and text is not forced: screenshots can be encoded
+faster than OCR text while keeping their accuracy advantage.
 % NOTE: the OCR-text index uses RapidOCR on the CPU. With Apple Vision OCR (Neural Engine,
-% accurate mode) it takes 0.79 s per screenshot, faster than our 0.98 s; decide how to present it.
+% accurate mode) it takes 0.79 s per screenshot, faster than Ditto's 0.98 s; decide how to present it.
 % CPU latency (10/13 table: 1.50 vs 2.44 s) is left out until it is reconciled with
 % efficiency_notes.md (server CPU: 5.48 vs 3.86 s).
 
-Lower encoding cost makes two further uses practical. First, a recall system
-must search a history that keeps growing. In a pilot study with 500 fixed
-questions, R@1 of the screenshot index drops from 78.8\% to 53.2\% as the
-pool grows from 5K to 80K screenshots, while staying ahead of the OCR-text
-index at every pool size; lower encoding cost lets us index and evaluate
-larger pools \todo{larger-pool results in the main setting}. Second, because
-the index returns screenshots rather than extracted text, an agent can use
-it to recall a value from the person's past and finish a task, such as
+Lower encoding cost also changes what a recall system can do. First, a
+person's history keeps growing, and recall gets harder as it does: in a
+pilot study with 500 fixed questions, R@1 of the screenshot index drops from
+78.8\% to 53.2\% as the pool grows from 5K to 80K screenshots, while staying
+ahead of the OCR-text index at every pool size. Ditto makes larger pools
+affordable to index \todo{larger-pool results in the main setting}. Second,
+because Ditto returns screenshots rather than extracted text, an agent can
+use it to recall a value from the person's past and finish a task, such as
 finding a yoga mat with the same filters the person used in August
-\todo{agentic results}.
+\todo{agentic results}. Thus, the screenshot itself, not its text, can serve
+as the record that a personal memory system stores and searches, at a cost
+a laptop can sustain.
 % Pilot: 9/26 meeting, Finding 3 (synthetic queries, PSAI, OCR = PP-OCRv4 mobile + same embedder).
 
 To summarize, we make the following contributions:
 \begin{itemize}
-\item We study the cost of episodic recall over screenshots on a laptop and
-  show that, with the same embedding model and training, the screenshot
-  index retrieves better than the OCR-text index but takes 2.3$\times$
-  longer to encode.
-\item We reduce this cost with token pruning and K/V reuse, which remove
-  spatial and temporal redundancy without training. The screenshot index
-  then encodes a screenshot faster than the OCR-text index on a laptop GPU
-  and keeps a lead of 2.0 points in R@1 and 4.5 points in R@10.
+\item We show that, with the same embedding model and training, searching
+  screenshots retrieves better than searching their OCR text on real screen
+  histories, but takes 2.3$\times$ longer to encode on a laptop GPU.
+\item We present Ditto, which removes spatial and temporal redundancy in
+  screen streams with token pruning and K/V reuse, without training. Ditto
+  encodes a screenshot faster than the OCR-text index on a laptop GPU and
+  keeps a lead of 2.0 points in R@1 and 4.5 points in R@10.
 \item We build an episodic-recall benchmark from the screen recordings of two
   people (PSAI-A: 117 days, 91.8 hours; PSAI-B: 57 days, 17.2 hours) and from
   computer-use rollouts (MyPCBench~\cite{jang2026mypcbench}), with

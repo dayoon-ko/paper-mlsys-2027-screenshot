@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: example_paper.aux
 The style file: mlsys2025.bst
 Database file #1: example_paper.bib
-You've used 14 entries,
+You've used 15 entries,
             2773 wiz_defined-function locations,
-            673 strings with 7062 characters,
-and the built_in function-call counts, 5922 in all, are:
-= -- 505
-> -- 336
-< -- 13
-+ -- 115
-- -- 101
-* -- 419
-:= -- 927
-add.period$ -- 43
-call.type$ -- 14
-change.case$ -- 72
-chr.to.int$ -- 14
-cite$ -- 28
-duplicate$ -- 306
-empty$ -- 517
-format.name$ -- 123
-if$ -- 1253
+            680 strings with 7138 characters,
+and the built_in function-call counts, 6313 in all, are:
+= -- 543
+> -- 346
+< -- 14
++ -- 119
+- -- 104
+* -- 448
+:= -- 986
+add.period$ -- 46
+call.type$ -- 15
+change.case$ -- 76
+chr.to.int$ -- 15
+cite$ -- 30
+duplicate$ -- 326
+empty$ -- 557
+format.name$ -- 127
+if$ -- 1335
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 12
-newline$ -- 77
-num.names$ -- 61
-pop$ -- 169
+missing$ -- 13
+newline$ -- 82
+num.names$ -- 65
+pop$ -- 176
 preamble$ -- 1
-purify$ -- 59
+purify$ -- 62
 quote$ -- 0
-skip$ -- 225
+skip$ -- 238
 stack$ -- 0
-substring$ -- 112
-swap$ -- 34
+substring$ -- 139
+swap$ -- 35
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 144
+type$ -- 155
 warning$ -- 0
-while$ -- 52
+while$ -- 57
 width$ -- 0
-write$ -- 185
+write$ -- 198
