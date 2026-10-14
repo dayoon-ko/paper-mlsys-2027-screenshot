@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.24)  14 OCT 2026 09:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.11.24)  14 OCT 2026 11:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -474,21 +474,33 @@ LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <9> not available
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 3439) has occurred while \output is active []
 
  [1{/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
 
-]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
-10.
 
+pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
+ been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.105 
+      ]
+Underfull \hbox (badness 7415) in paragraph at lines 123--140
+[]\OT1/ptm/m/n/10 (+20) We im-ple-ment both tech-niques in-side Qwen3-VL-
+ []
+
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
+55.
 (/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 1881) in paragraph at lines 120--127
-[]\OT1/ptm/m/n/10 (+20) We build a time-split episodic-recall bench-mark
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \hbox (badness 1515) in paragraph at lines 163--169
+\OT1/ptm/m/n/10 (+20) 91.8 hours; PSAI-B: 57 days, 17.2 hours) and
  []
 
 )
@@ -521,11 +533,11 @@ Underfull \hbox (badness 1259) in paragraph at lines 270--277
 []\OT1/ptm/m/n/10 (+20) MLSys uses double-blind re-view, so au-thor in-for-ma-
  []
 
-LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <10> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 316.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <10> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 316.
 
 Underfull \hbox (badness 1460) in paragraph at lines 326--333
 []\OT1/ptm/m/n/10 (+20) The pa-per ab-stract should be-gin in the left col-umn,
@@ -538,36 +550,39 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [4]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
  [5
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
+pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
  been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.496 
-      ]
+l.474 C
+       itations within the text should include the authors' last names and]
 LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 5
 05.
- (/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/omsptm.fd
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 505.
 
-(./example_paper.bbl) [6] (./example_paper.aux)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+(./example_paper.bbl [6]) [7
+
+] (./example_paper.aux)
 Package rerunfilecheck Info: File `example_paper.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 12631 strings out of 478268
- 198343 string characters out of 5846346
- 552122 words of memory out of 5000000
- 30294 multiletter control sequences out of 15000+600000
- 512056 words of font info for 264 fonts, out of 8000000 for 9000
+ 12643 strings out of 478268
+ 198442 string characters out of 5846346
+ 555541 words of memory out of 5000000
+ 30295 multiletter control sequences out of 15000+600000
+ 512410 words of font info for 270 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,11n,69p,1010b,584s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 60i,12n,69p,1010b,584s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
 xlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texl
@@ -583,10 +598,10 @@ fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/ty
 pe1/urw/times/utmb8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/ti
 mes/utmr8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/times/utmr8a
 .pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on example_paper.pdf (6 pages, 205164 bytes).
+Output written on example_paper.pdf (7 pages, 206237 bytes).
 PDF statistics:
- 210 PDF objects out of 1000 (max. 8388607)
- 170 compressed objects within 2 object streams
- 47 named destinations out of 1000 (max. 500000)
+ 220 PDF objects out of 1000 (max. 8388607)
+ 179 compressed objects within 2 object streams
+ 49 named destinations out of 1000 (max. 500000)
  72705 words of extra memory for PDF output out of 74296 (max. 10000000)
 
