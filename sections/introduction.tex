@@ -1,0 +1,116 @@
+% Introduction. Follows the "Paper Storyline" of the 10/13 meeting:
+%   (1) episodic recall over laptop activity is valuable (human memory vs. a vast digital stream)
+%   (2) existing systems rely heavily on OCR text
+%   (3) screenshots are significantly better than OCR text, but slow to encode
+%   (4) token pruning / K/V reuse remove spatial / temporal redundancy
+%   (5) this makes larger pools affordable (to be verified) and benefits agentic workflows
+% Numbers: 10/13 meeting results table (PSAI-A main setting, 63,538 frames x 5,507 test queries,
+% Qwen3-VL-Embedding-2B, Apple M2 Pro; GPU = MPS fp16, CPU latency from the same table).
+
+\section{Introduction}
+\label{sec:intro}
+
+People spend much of their working day in front of a screen, and much of
+what passes over it they will need again: the price cap they set while
+shopping, the command they ran right after checking their IP address, the
+album page they opened to copy a track list. Human memory is a poor index
+for this stream. Most such details are seen once, briefly, and are gone by
+the time they are needed~\needcite{human memory / re-finding studies}, and
+recovering them by hand means guessing the right application, tab, or search
+query~\cite{hu2020screentrack}. \emph{Episodic recall} over one's own laptop
+activity, i.e.\ retrieving the moment on screen that answers a natural-language
+question about the past, is therefore valuable to people, and increasingly to
+computer-use agents that act on a person's behalf and must recall what that
+person did before~\cite{yang2026personatrail}.
+
+Screen-recall systems capture a screenshot every few seconds and index it.
+Existing systems rely heavily on OCR text: products such as Microsoft Recall,
+Rewind, Screenpipe, and OpenRecall extract the text on each screenshot and
+search over that text~\needcite{Recall, Rewind, Screenpipe, OpenRecall}, while
+research systems that go beyond text send screenshots to a cloud VLM for
+summarization~\cite{wang2025mirix}. OCR is attractive for an always-on,
+on-device system because text is cheap to store and to embed. But it discards
+everything on the screen that is not text, such as layout, icons, images, and
+the visual state of a form or page, and its errors on small or stylized text
+propagate into the index.
+
+Visual document retrieval has shown that embedding page images directly with
+a vision-language model (VLM) can outperform OCR-then-embed pipelines on
+static document collections~\cite{ma2024dse,faysse2025colpali}. We find that
+the same holds on real screen streams. Holding the embedding model fixed
+(Qwen3-VL-Embedding-2B~\needcite{Qwen3-VL-Embedding}) and indexing either each
+screenshot or its OCR text, on 63,538 screenshots of one person's real
+computer use with 5,507 time-split test queries, screenshots reach 65.6 R@1
+zero-shot versus 59.5 for OCR text, and 68.6/85.8 versus 66.1/79.4 R@1/R@10
+after identical LoRA fine-tuning. Screenshots, however, are slow to encode:
+every frame is a full VLM forward pass over hundreds of visual tokens. On a
+laptop (Apple M2 Pro), embedding one screenshot takes 2.86\,s on the GPU
+versus 1.27\,s for the OCR route, and 6.61\,s versus 2.44\,s on the CPU.
+Because a recall system captures 720 frames per screen-hour and must index
+every one of them for as long as it runs, this gap is a permanent tax: at
+2.86\,s per frame, indexing alone occupies the laptop GPU for 34 minutes of
+every hour of screen time.
+
+Our key observation is that most of this computation is redundant, in two
+ways. \emph{Spatial redundancy}: much of a screen is blank or flat
+(backgrounds, margins, whitespace). \emph{Temporal redundancy}: consecutive
+frames, taken 5\,s apart, are often identical, and when they are not, only
+small regions change (typing, a moving cursor). We remove each with a
+matching technique. \emph{Token pruning} removes spatial redundancy within a
+frame: following PixelPrune~\needcite{PixelPrune}, we drop every
+$32{\times}32$ block whose pixels are predictable from its left and upper
+neighbors (maximum pixel difference ${\le}\,8/255$) before it enters the ViT.
+\emph{K/V reuse} removes temporal redundancy across frames: a block counts as
+changed if any of its pixels differs by more than $8/255$ from when it was
+last computed; the ViT caches every layer's keys and values and recomputes
+only the changed patches, and the LLM reuses the cached keys and values of
+unchanged visual tokens. Both techniques are training-free and apply to the
+same embedding model at the original screen resolution.
+
+Together, the two techniques cut compute from 6.17 to 1.93\,TFLOP per frame
+(0.31$\times$) and GPU latency from 2.86 to 0.98\,s (0.34$\times$), which
+makes the screenshot route faster than the OCR route on the same laptop
+(0.98 vs.\ 1.27\,s on the GPU, 1.50 vs.\ 2.44\,s on the CPU). The screenshot
+route still spends 1.6$\times$ the FLOPs of the OCR route; OCR is cheap in
+FLOPs but slow in practice, because text extraction runs on the CPU as many
+small, irregular operations. The accuracy cost is small. With LoRA, the
+techniques cost at most 0.5 R@1 and 1.9 R@10, and the screenshot index still
+leads OCR text by $+2.0$ R@1 and $+4.5$ R@10, with 95\% confidence intervals
+that exclude zero. Zero-shot, token pruning costs 2.4 R@1, a loss that
+fine-tuning absorbs.
+% NOTE (risk, from efficiency_results_20261013): with Apple Vision OCR (Neural Engine,
+% accurate mode) the OCR route takes 0.79 s/frame on the Mac, i.e. faster than our 0.98 s.
+% The latency claim above holds against RapidOCR; decide how to present Apple Vision
+% (as a baseline in Sec. X, or by giving the OCR route the same change-awareness).
+
+Cheaper encoding changes what a recall system can afford. A lower cost per
+frame makes larger pools, i.e.\ longer histories and denser capture,
+affordable, which matters because recall drops as the pool grows
+\todo{verify with larger-pool experiments}. And because the index returns
+screens rather than extracted text, it plugs directly into agentic workflows
+in which an agent must recall a value from the user's past to finish a task,
+such as re-applying the filters the user chose last month
+\todo{agentic results}.
+
+In summary, we make the following contributions:
+\begin{itemize}
+\item We show on real human screen streams that, with the embedding model
+  and training recipe held fixed, indexing screenshots retrieves
+  significantly better than indexing their OCR text, but costs
+  2.3$\times$ (GPU) to 2.7$\times$ (CPU) more time per frame on a laptop.
+\item We identify spatial and temporal redundancy in screen streams and
+  remove them without training, with token pruning within frames and K/V
+  reuse across frames in both the ViT and the LLM. This cuts compute to
+  0.31$\times$ and latency to 0.34$\times$ of the full screenshot, making
+  the screenshot route faster than OCR text on a laptop while it keeps a
+  $+2.0$ R@1 / $+4.5$ R@10 lead.
+\item We build a time-split episodic-recall benchmark from human-annotated
+  screen recordings of two people (PSAI-A, PSAI-B) and from computer-use
+  rollouts (MyPCBench~\cite{jang2026mypcbench}), with single-hop, multi-hop,
+  and agentic (recall-then-act) queries, where every query is checked
+  against the person's entire history so that all matching recordings count
+  as gold \todo{final query counts after the updated test sets}.
+\item We show that the cheaper index scales to larger pools
+  \todo{larger-pool results} and benefits agentic tasks
+  \todo{agentic results}.
+\end{itemize}

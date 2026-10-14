@@ -7,6 +7,11 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{booktabs} % for professional tables
+\usepackage{xcolor}
+
+% Drafting macros: visible red markers for open items and missing citations.
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\needcite}[1]{\textcolor{red}{[cite: #1]}}
 
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
@@ -93,6 +98,8 @@ Gross violations will trigger corrections at the camera-ready phase.
 
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 \printAffiliationsAndNotice{\mlsysEqualContribution} % otherwise use the standard text.
+
+\input{sections/introduction}
 
 \section{Electronic Submission}
 \label{submission}
